@@ -1,0 +1,124 @@
+{
+  "theme": "Dark Theme (ARCHETYPE 2: THE PERFORMANCE PRO) - Tactical Gym Aesthetic",
+  "typography": {
+    "headings": {
+      "family": "Barlow Condensed, sans-serif",
+      "weight": "900 (Black)",
+      "tracking": "tracking-tight",
+      "usage": "Massive oversized numeric typography for live stats and high-impact moments. Maximum text-6xl for hero, text-4xl for dashboard widgets."
+    },
+    "body": {
+      "family": "Inter, sans-serif",
+      "weight": "400, 500",
+      "tracking": "tracking-wide",
+      "usage": "Geometric sans with increased tracking for legibility in dense lists and history logs."
+    },
+    "special": {
+      "labels": "Uppercase + Tiny + Wide Spacing (tracking-[0.2em])"
+    }
+  },
+  "colors": {
+    "backgrounds": {
+      "base": "#0A0A0A",
+      "surface": "#121212",
+      "surface_elevated": "#1A1A1A"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA"
+    },
+    "accents": {
+      "primary_kinetic": "#007AFF",
+      "electric_blaze": "#FF3B30",
+      "tactical_border": "#27272A"
+    },
+    "semantic_status": {
+      "green_closed_manual": "#10B981",
+      "red_closed_auto": "#EF4444",
+      "yellow_edited_admin": "#F59E0B"
+    },
+    "rules": [
+      "Use extremely high contrast for critical data.",
+      "Never use pure black or pure grey without a slight tint.",
+      "No full-screen gradients. Texture > gloss.",
+      "Status badges with color coding (Green, Red, Yellow) are absolutely critical for the history calendar."
+    ]
+  },
+  "visual_enhancers": {
+    "surfaces": {
+      "tactical_look": "Replace soft shadows with 1px solid strokes (border-white/10) or 2px Inner Glow highlights.",
+      "headers": "Use Solid Background with a hard bottom border (#27272A). NEVER use transparent backgrounds over content.",
+      "employee_clock_button": "Use a massive, tactile variant of Neumorphism. It should feel like pushing a physical, heavy machine button. High contrast, sharp inner edges."
+    },
+    "borders": {
+      "grid_technical": "Expose the skeleton. Data-heavy dashboards (Admin) should use border-r border-b border-border/40 to create a technical/tactical look."
+    }
+  },
+  "component_rules": {
+    "general": "Use pure HTML/Tailwind for custom layouts (like the giant employee punch-in dashboard). Use Shadcn/UI primitives for tables, forms, and dialogs in the Admin dashboard.",
+    "buttons": "Pill-shaped or sharp rectangular buttons. NEVER use HTML <select>, always Shadcn dropdowns.",
+    "inputs": "Shadcn input and select components exclusively. Do not use generic native elements.",
+    "calendar": "Admin and Employee history require a Calendar grid. MUST use Shadcn calendar component. Days must show the green/red/yellow status dots.",
+    "toast": "Use `sonner` for toast notifications (e.g., successful punch-in/out, saved admin settings). Located in /app/frontend/src/components/ui/sonner.jsx."
+  },
+  "grids_layouts": {
+    "employee_dashboard": "Mobile-first priority. Full-height layout where the 'Clock In/Out' interaction takes up 60%+ of the viewport height. Massive hit targets.",
+    "admin_dashboard": "High Density Grid (MODE B). Tight gaps (gap-4). Every pixel utilized. col-span-3 for main user lists, col-span-1 for summary widgets.",
+    "spacing": "Generous Spacing Philosophy. Use p-6 or p-8 inside cards. Containers with borders MUST have internal padding."
+  },
+  "motion": {
+    "clock_in_button": "Tactical feedback: Heavy scale-down (transform: scale(0.95)) on press with a swift release. It must feel 'alive' and responsive to physical effort.",
+    "hover_states": "ALWAYS explicitly set text color on hover (e.g., hover:bg-slate-900 hover:text-white). Focus states must have HIGHER contrast.",
+    "transitions": "Use specific properties (transition: transform 0.2s ease, opacity 0.2s ease). DO NOT use `transition: all` as it breaks transforms.",
+    "accessibility": "Respect prefers-reduced-motion."
+  },
+  "accessibility": {
+    "contrast": "Minimum 4.5:1 for normal text, 3:1 for large text. Prefer APCA contrast rules.",
+    "testing": "All interactive and key informational elements MUST include a `data-testid` attribute (kebab-case, role-based). Examples: `data-testid=\"clock-in-button\"`, `data-testid=\"admin-save-coords-button\"`."
+  },
+  "media": {
+    "strategy": "Atmospheric, dark, cinematic fitness imagery to reinforce the tactical aesthetic.",
+    "images": {
+      "hero_bg": {
+        "url": "https://images.pexels.com/photos/4753890/pexels-photo-4753890.jpeg",
+        "description": "Dark and atmospheric gym interior showcasing weights with dramatic lighting.",
+        "usage": "Use as an opacity-reduced background (max 30% opacity, bg-black/70 overlay) for the login screen or massive employee dashboard to add depth without distracting from the clock-in button."
+      },
+      "admin_bg": {
+        "url": "https://images.pexels.com/photos/29392546/pexels-photo-29392546.jpeg",
+        "description": "Dark, atmospheric gym with mirrored weightlifting machines and neon lighting.",
+        "usage": "Use as a subtle hero header graphic in the admin settings."
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "Design a mobile-first PWA for Gym Employees (Fichaje/Clock-in).",
+    "Focus on the 'Elite Athleticism & Precision' archetype. Use deep blacks and sharp borders.",
+    "Implement the Employee dashboard with a massive, satisfying clock-in button.",
+    "Implement the Admin Dashboard using high-density grid layouts for user CRUD and coordinate settings.",
+    "CRITICAL: The Monthly Calendar history MUST display colored indicators based on punch type: Green (#10B981) for Manual, Red (#EF4444) for Auto-closed, Yellow (#F59E0B) for Admin-edited.",
+    "Add 'data-testid' to every interactive element.",
+    "Language must be Spanish UI.",
+    "Ensure all Shadcn components (calendar, select, table) conform to the dark tactical theme."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: `transition: all`. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add `.App { text-align: center; }` in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Create new components that match the style and conventions of existing components when needed.",
+    "Examine existing components to understand the project's component patterns before creating new ones.",
+    "Use `sonner` for toasts.",
+    "Sonner component are located in `/app/frontend/src/components/ui/sonner.jsx`."
+  ]
+}
