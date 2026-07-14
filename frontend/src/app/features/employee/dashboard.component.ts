@@ -531,7 +531,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
       await this.loadPunches();
       setTimeout(() => this.success.set(null), 3000);
     } catch (e: any) {
-      this.error.set(e?.error?.detail || 'Error al fichar entrada');
+      this.error.set(e?.message || 'Error al fichar entrada');
       this.showCheckInModal.set(false);
     } finally {
       this.loading.set(false);
@@ -563,7 +563,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
       await this.loadPunches();
       setTimeout(() => this.success.set(null), 3000);
     } catch (e: any) {
-      this.error.set(e?.error?.detail || 'Error al fichar salida');
+      this.error.set(e?.message || 'Error al fichar salida');
       this.showNoteModal.set(false);
     } finally {
       this.loading.set(false);

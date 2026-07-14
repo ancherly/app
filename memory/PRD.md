@@ -3,185 +3,156 @@
 ## Descripción del proyecto
 Web App (PWA instalable en móvil) para control horario de gimnasio con roles Admin/Empleado, geolocalización con geofencing, historial mensual con código de colores y cierre automático a medianoche.
 
-**Fecha de inicio:** Julio 2026
-
 ---
 
-## Arquitectura
+## Arquitectura (Actual — Serverless)
 
 ### Tech Stack
-- **Frontend:** Angular 18+ (Standalone Components, Signals, provideRouter, provideHttpClient)
+- **Frontend:** Angular 18+ (Standalone Components, Signals, provideRouter)
 - **PWA:** @angular/service-worker (Service Worker, manifest, offline shell)
 - **Estado:** Signals puros + computed + effect
-- **Backend:** FastAPI (Python)
-- **Base de datos:** MongoDB (Motor async driver)
-- **Scheduler:** APScheduler (cierre automático medianoche)
-- **Auth:** JWT con httpOnly cookies + bcrypt
+- **Backend:** ELIMINADO — Arquitectura serverless
+- **Base de datos:** Supabase PostgreSQL (cloud)
+- **Auth:** Supabase Auth (signInWithPassword, JWT gestionado por SDK)
+- **Seguridad:** Row Level Security (RLS) en PostgreSQL
+- **Edge Functions:** Supabase Edge Functions (Deno) para operaciones admin
+- **Scheduler:** pg_cron en Supabase para cierre automático medianoche
 
 ### Estructura de archivos
 ```
-/app/backend/server.py          # Backend completo (FastAPI + Auth + API)
-/app/frontend/src/
-  app/
-    app.component.ts            # Root component con loading state
-    app.config.ts               # Providers (router, http, APP_INITIALIZER)
-    app.routes.ts               # Lazy loading por feature
-    core/
-      services/
-        auth.service.ts         # Signals: currentUser, isAdmin, isLoading
-        punch.service.ts        # CRUD fichajes
-        user.service.ts         # CRUD usuarios (admin)
-        gym-settings.service.ts # Configuración gymnasio
-        geo.service.ts          # Geolocalización navigator.geolocation
-      guards/
-        auth.guard.ts           # Requiere sesión activa
-        admin.guard.ts          # Requiere rol admin
-      interceptors/
-        auth.interceptor.ts     # withCredentials: true en todas las requests
-    features/
-      auth/login.component.ts
-      employee/
-        dashboard.component.ts  # Reloj + botón fichar + fichajes hoy
-        history.component.ts    # Calendario + lista diaria + resumen mensual
-      admin/
-        users.component.ts      # CRUD usuarios
-        employee-detail.component.ts  # Historial empleado + editar fichajes
-        settings.component.ts   # Coordenadas gym + radio geofencing
-    layout/
-      main-layout.component.ts  # Sidebar + router-outlet
-  environments/environment.ts
-  styles.scss                   # Dark tactical theme CSS variables
+/app/
+├── frontend/
+│   └── src/app/
+│       ├── core/services/
+│       │   ├── supabase.service.ts     # Cliente singleton Supabase
+│       │   ├── auth.service.ts         # Supabase Auth (signInWithPassword)
+│       │   ├── punch.service.ts        # CRUD fichajes + geofencing client-side
+│       │   ├── user.service.ts         # CRUD usuarios (admin + Edge Functions)
+│       │   ├── gym-settings.service.ts # Configuración gym
+│       │   └── geo.service.ts          # navigator.geolocation (sin cambios)
+│       ├── features/
+│       │   ├── auth/login.component.ts
+│       │   ├── employee/dashboard.component.ts
+│       │   ├── employee/history.component.ts
+│       │   └── admin/ (users, employee-detail, settings)
+│       └── app.config.ts              # Sin HttpClient, APP_INITIALIZER activo
+├── supabase/
+│   ├── functions/
+│   │   ├── create-user/index.ts       # Edge Function: crear usuario
+│   │   └── reset-user-password/index.ts # Edge Function: resetear contraseña
+│   ├── migrations/001_rls_setup.sql   # RLS + funciones SQL
+│   └── SETUP_INSTRUCTIONS.md          # Instrucciones de configuración Supabase
+└── backend/                            # FastAPI — PENDIENTE DE ELIMINAR
+```
+
+---
+
+## Supabase Config
+- **URL:** https://urmdglvrqnhzlhtprfuc.supabase.co
+- **Anon Key:** en environment.ts (pública, protegida por RLS)
+- **Service Role Key:** SOLO en Edge Functions (nunca en frontend)
+
+---
+
+## DB Schema (Supabase PostgreSQL)
+
+### public.users
+```sql
+{ id UUID (= auth.users.id), email, password_hash (placeholder), full_name, role, active, created_at }
+```
+
+### public.punches
+```sql
+{ id UUID, user_id UUID→users.id, work_date DATE, check_in_at TIMESTAMPTZ,
+  check_in_lat/lng, check_in_note, check_out_at, check_out_lat/lng, check_out_note,
+  status, edited_by_admin, edited_by, edited_at, created_at, updated_at }
+```
+
+### public.gym_settings
+```sql
+{ id UUID, latitude FLOAT, longitude FLOAT, radius_meters INT, timezone TEXT }
 ```
 
 ---
 
 ## User Personas
 - **Admin:** Gerente del gimnasio. Gestiona empleados, ve historial, edita fichajes, configura geofencing.
-- **Empleado:** Monitor, recepcionista, mantenimiento. Ficha entrada/salida desde el gym.
+- **Empleado:** Monitor, recepcionista. Ficha entrada/salida desde el gym.
 
 ---
 
-## Core Requirements (MVP - Implementado ✅)
+## Core Requirements (MVP — Implementado ✅)
 
 ### Auth & Roles
-- [x] Login email + password con JWT httpOnly cookies
-- [x] Roles admin y employee
-- [x] Guards: authGuard (requiere sesión), adminGuard (requiere admin)
-- [x] Auto-login al cargar la app (APP_INITIALIZER + /api/auth/me)
-- [x] Logout con limpieza de cookies
+- [x] Login con Supabase Auth (signInWithPassword)
+- [x] Roles admin y employee (tabla public.users)
+- [x] Guards: authGuard, adminGuard
+- [x] Auto-login al cargar la app (APP_INITIALIZER + getSession)
+- [x] Logout con signOut
+- [x] Mensajes de error en español
 
 ### Panel Empleado
-- [x] Reloj en tiempo real (Signals + setInterval)
-- [x] Botón "FICHAR ENTRADA" / "FICHAR SALIDA" alternante
-- [x] Máx. 3 pares entrada/salida por día (validado en backend)
-- [x] Captura automática GPS (navigator.geolocation)
-- [x] Validación geofencing (haversine en backend) — BLOQUEA si fuera de radio
-- [x] Observación de texto opcional en cada fichaje
+- [x] Reloj en tiempo real
+- [x] Botón FICHAR ENTRADA / SALIDA alternante
+- [x] Máx. 3 pares entrada/salida por día
+- [x] Geofencing client-side (haversine)
+- [x] Observaciones opcionales en fichaje
 - [x] Historial mensual con calendario
-- [x] Código de colores: 🟢 Verde (manual), 🔴 Rojo (auto), 🟡 Amarillo (admin), 🔵 Azul (abierto)
-- [x] Resumen mensual (días trabajados, horas estimadas, cierres auto)
+- [x] Código de colores por estado
+- [x] Resumen mensual
 
 ### Panel Admin
-- [x] CRUD de usuarios (crear, editar nombre/email, activar/desactivar, resetear password)
+- [x] CRUD usuarios (via Edge Functions para crear/resetear)
 - [x] Ver historial de cualquier empleado
-- [x] Editar fichajes → se marca status=edited_admin (amarillo)
-- [x] Crear fichajes desde cero (olvidé fichar)
-- [x] Eliminar fichajes
-- [x] Configurar coordenadas GPS del gimnasio + radio de geofencing (50-2000m)
-- [x] "Usar mi ubicación" para configurar gym desde el navegador
+- [x] Editar/crear/eliminar fichajes
+- [x] Configurar coordenadas GPS + radio geofencing
+- [x] RLS protege acceso a datos
 
-### Cierre automático (Midnight Reset)
-- [x] APScheduler con CronTrigger a las 23:59 Europe/Madrid
-- [x] Cierra todos los fichajes abiertos con status=closed_auto
-- [x] Nota "Cierre automático por el sistema"
-
-### PWA
-- [x] Service Worker configurado (ngsw-config.json)
-- [x] manifest.webmanifest con theme-color, standalone display
-- [x] Proxy config para dev (ng serve proxia /api/* → localhost:8001)
+### Seguridad (RLS)
+- [x] Empleados solo ven sus propios fichajes
+- [x] Admins ven todo
+- [x] Tabla gym_settings: read para todos, write solo admins
+- [x] Edge Functions verifican token + rol antes de ejecutar
 
 ---
 
-## Database Models (MongoDB)
+## Backlog
 
-### users
-```json
-{ "_id": ObjectId, "email": str, "password_hash": str, "full_name": str,
-  "role": "admin"|"employee", "active": bool, "created_at": datetime }
-```
+### P0 — En progreso
+- [ ] Ejecutar SQL de RLS en Supabase Dashboard (usuario pendiente)
+- [ ] Crear auth users demo en Supabase (admin@gimnasio.es, empleado@gimnasio.es)
+- [ ] Desplegar Edge Functions (supabase functions deploy)
+- [ ] Eliminar backend FastAPI + actualizar supervisord
 
-### gym_settings
-```json
-{ "latitude": float, "longitude": float, "radius_meters": int, "timezone": "Europe/Madrid" }
-```
-
-### punches
-```json
-{ "_id": ObjectId, "user_id": str, "work_date": "YYYY-MM-DD",
-  "check_in_at": datetime, "check_in_lat": float, "check_in_lng": float, "check_in_note": str,
-  "check_out_at": datetime|null, "check_out_lat": float, "check_out_lng": float, "check_out_note": str,
-  "status": "open"|"closed_manual"|"closed_auto"|"edited_admin",
-  "edited_by_admin": bool, "edited_by": str|null, "edited_at": datetime|null }
-```
-
----
-
-## API Endpoints Implementados
-
-| Method | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | /api/auth/login | - | Login con cookies |
-| POST | /api/auth/logout | ✓ | Limpia cookies |
-| GET | /api/auth/me | ✓ | Usuario actual |
-| POST | /api/auth/refresh | cookie | Renueva access token |
-| GET | /api/settings | ✓ | Configuración gym |
-| PUT | /api/settings | admin | Actualizar config |
-| GET | /api/punches | ✓ | Mis fichajes (filtro mes) |
-| POST | /api/punches/checkin | ✓ | Fichar entrada |
-| POST | /api/punches/checkout/{id} | ✓ | Fichar salida |
-| GET | /api/admin/users | admin | Lista usuarios |
-| POST | /api/admin/users | admin | Crear usuario |
-| PUT | /api/admin/users/{id} | admin | Editar usuario |
-| PATCH | /api/admin/users/{id}/toggle-active | admin | Activar/desactivar |
-| POST | /api/admin/users/{id}/reset-password | admin | Resetear contraseña |
-| GET | /api/admin/punches | admin | Fichajes cualquier empleado |
-| POST | /api/admin/punches | admin | Crear fichaje manual |
-| PUT | /api/admin/punches/{id} | admin | Editar fichaje |
-| DELETE | /api/admin/punches/{id} | admin | Eliminar fichaje |
-
----
-
-## Credenciales de Prueba
-Ver /app/memory/test_credentials.md
-
----
-
-## Backlog (Fases 2-4)
-
-### P0 — Completado (Julio 2026 - Sesión 2)
-- [x] **Librería de componentes: PrimeNG 17.18.11** instalado y configurado
-- [x] **SCSS Architecture organizada**: _tokens.scss, _base.scss, _components.scss, _primeng-overrides.scss
-- [x] **Tabla de usuarios con PrimeNG p-table** (sorting por nombre/email, tooltips, paginación)
-- [x] **Acceso rápido en login**: botones demo para Admin y Empleado
-- [x] **Settings mejorado**: "Localización Madre" con link a Google Maps, badge EN USO
-
-### P1 — Próxima sesión (antes Supabase)
-- [ ] Conectar con Supabase (cuando el usuario esté listo)
-- [ ] Icono PWA dumbbell (mejorar SVG del brand icon)
-
-### P1 — Fase 3
+### P1 — Próximo
+- [ ] pg_cron para cierre automático medianoche
 - [ ] Exportación CSV/PDF del historial mensual
-- [ ] Iconos PWA personalizados (512x512, 192x192)
+- [ ] Iconos PWA personalizados
 
-### P2 — Fase 4
-- [ ] Notificaciones push (Web Push API)
-- [ ] Modo offline con cola de fichajes (IndexedDB + sync)
+### P2 — Futuro
+- [ ] Notificaciones push
+- [ ] Modo offline (IndexedDB + sync)
 - [ ] Múltiples sedes
-- [ ] Turnos planificados vs fichado
-- [ ] Reporting con gráficos (Recharts/Chart.js)
+- [ ] Reporting con gráficos
 
 ---
 
-## Implementado: Julio 2026
-- MVP completo Angular 18 PWA con FastAPI+MongoDB
-- 100% tests pasados (backend + frontend)
+## Historial de implementación
+
+### Julio 2026 — Sesión 1
+- MVP Angular 18 PWA con FastAPI + MongoDB
+- 100% tests pasados
+
+### Julio 2026 — Sesión 2
+- PrimeNG v17.18.11 + SCSS architecture
+- Demo users en login
+- Configuración Mother Location mejorada
+
+### Julio 2026 — Sesión 3 (actual)
+- Migración DB: MongoDB → Supabase PostgreSQL
+- Reescritura servicios Angular: HttpClient → @supabase/supabase-js
+- Implementación Supabase Auth (signInWithPassword)
+- RLS SQL script listo
+- Edge Functions creadas (pendiente deploy)
+- Geofencing movido a client-side
+- Backend FastAPI marcado para eliminación

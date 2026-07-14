@@ -421,7 +421,7 @@ export class AdminUsersComponent implements OnInit {
       const data = await this.userService.getUsers();
       this.users.set(data);
     } catch (e: any) {
-      this.error.set(e?.error?.detail || 'Error al cargar usuarios');
+      this.error.set(e?.message || 'Error al cargar usuarios');
     } finally {
       this.loading.set(false);
     }
@@ -468,7 +468,7 @@ export class AdminUsersComponent implements OnInit {
       }
       this.closeModal();
     } catch (e: any) {
-      this.modalError.set(e?.error?.detail || 'Error al guardar');
+      this.modalError.set(e?.message || 'Error al guardar');
     } finally {
       this.saving.set(false);
     }
@@ -479,7 +479,7 @@ export class AdminUsersComponent implements OnInit {
       const result = await this.userService.toggleActive(user.id);
       this.users.update(list => list.map(u => u.id === user.id ? { ...u, active: result.active } : u));
     } catch (e: any) {
-      this.error.set(e?.error?.detail || 'Error al cambiar estado');
+      this.error.set(e?.message || 'Error al cambiar estado');
     }
   }
 
@@ -491,7 +491,7 @@ export class AdminUsersComponent implements OnInit {
       await this.userService.resetPassword(this.resetUser()!.id, this.newPassword);
       this.showResetModal.set(false);
     } catch (e: any) {
-      this.modalError.set(e?.error?.detail || 'Error al resetear contraseña');
+      this.modalError.set(e?.message || 'Error al resetear contraseña');
     } finally {
       this.saving.set(false);
     }

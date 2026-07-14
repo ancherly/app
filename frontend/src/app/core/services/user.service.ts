@@ -1,7 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { SupabaseService } from './supabase.service';
 
 export interface GymUser {
   id: string;
@@ -14,26 +12,57 @@ export interface GymUser {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private http = inject(HttpClient);
-  private base = environment.apiUrl;
+  private supabase = inject(SupabaseService).client;
 
   async getUsers(): Promise<GymUser[]> {
-    return firstValueFrom(this.http.get<GymUser[]>(`${this.base}/api/admin/users`));
+    const { data, error } = await this.supabase
+      .from('users')
+      .select('id, email, full_name, role, active, created_at')
+      .order('full_name');
+    if (error) throw new Error(error.message);
+    return data as GymUser[];
   }
 
-  async createUser(data: { email: string; password: string; full_name: string; role: string }): Promise<GymUser> {
-    return firstValueFrom(this.http.post<GymUser>(`${this.base}/api/admin/users`, data));
+  async createUser(payload: { email: string; password: string; full_name: string; role: string }): Promise<GymUser> {
+    const { data, error } = await this.supabase.functions.invoke('create-user', { body: payload });
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
+    return data as GymUser;
   }
 
-  async updateUser(id: string, data: { full_name?: string; email?: string }): Promise<GymUser> {
-    return firstValueFrom(this.http.put<GymUser>(`${this.base}/api/admin/users/${id}`, data));
+  async updateUser(id: string, payload: { full_name?: string; email?: string }): Promise<GymUser> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .update(payload)
+      .eq('id', id)
+      .select('id, email, full_name, role, active, created_at')
+      .single();
+    if (error) throw new Error(error.message);
+    return data as GymUser;
   }
 
   async toggleActive(id: string): Promise<{ active: boolean }> {
-    return firstValueFrom(this.http.patch<{ active: boolean }>(`${this.base}/api/admin/users/${id}/toggle-active`, {}));
+    const { data: current, error: fetchErr } = await this.supabase
+      .from('users')
+      .select('active')
+      .eq('id', id)
+      .single();
+    if (fetchErr) throw new Error(fetchErr.message);
+
+    const newActive = !current.active;
+    const { error } = await this.supabase
+      .from('users')
+      .update({ active: newActive })
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+    return { active: newActive };
   }
 
   async resetPassword(id: string, newPassword: string): Promise<void> {
-    await firstValueFrom(this.http.post(`${this.base}/api/admin/users/${id}/reset-password`, { new_password: newPassword }));
+    const { data, error } = await this.supabase.functions.invoke('reset-user-password', {
+      body: { user_id: id, new_password: newPassword }
+    });
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
   }
 }

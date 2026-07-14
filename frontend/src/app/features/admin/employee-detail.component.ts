@@ -459,7 +459,7 @@ export class AdminEmployeeDetailComponent implements OnInit {
       this.showEditModal.set(false);
       await this.loadPunches();
     } catch (e: any) {
-      this.modalError.set(e?.error?.detail || 'Error al guardar fichaje');
+      this.modalError.set(e?.message || 'Error al guardar fichaje');
     } finally {
       this.saving.set(false);
     }
@@ -471,7 +471,7 @@ export class AdminEmployeeDetailComponent implements OnInit {
       await this.punchService.adminDeletePunch(punchId);
       this.punches.update(list => list.filter(p => p.id !== punchId));
     } catch (e: any) {
-      alert(e?.error?.detail || 'Error al eliminar');
+      alert(e?.message || 'Error al eliminar');
     }
   }
 

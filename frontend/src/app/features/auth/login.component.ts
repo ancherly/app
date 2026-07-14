@@ -368,12 +368,7 @@ export class LoginComponent {
         this.router.navigate(['/employee/dashboard']);
       }
     } catch (err: any) {
-      const detail = err?.error?.detail;
-      this.error.set(
-        typeof detail === 'string' ? detail :
-        Array.isArray(detail) ? detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ') :
-        'Error al iniciar sesión. Verifica tus credenciales.'
-      );
+      this.error.set(err?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
     } finally {
       this.loading.set(false);
     }

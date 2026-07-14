@@ -443,7 +443,7 @@ export class AdminSettingsComponent implements OnInit {
       this.success.set('✅ Localización madre guardada correctamente');
       setTimeout(() => this.success.set(null), 4000);
     } catch (e: any) {
-      this.error.set(e?.error?.detail || 'Error al guardar la configuración');
+      this.error.set(e?.message || 'Error al guardar la configuración');
     } finally {
       this.saving.set(false);
     }
