@@ -291,7 +291,7 @@ async def login(request_data: LoginRequest, response: Response, db: AsyncSession
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
 
-    is_secure = os.environ.get("APP_URL", "http://").startswith("https")
+    is_secure = os.environ.get("SECURE_COOKIES", "false").lower() == "true"
     response.set_cookie("access_token", access_token, httponly=True, secure=is_secure, samesite="lax", max_age=28800, path="/")
     response.set_cookie("refresh_token", refresh_token, httponly=True, secure=is_secure, samesite="lax", max_age=604800, path="/")
 
@@ -323,7 +323,7 @@ async def refresh_token_endpoint(request: Request, response: Response):
         if not user:
             raise HTTPException(status_code=401, detail="Usuario no encontrado")
         access_token = create_access_token(str(user.id), user.email)
-        is_secure = os.environ.get("APP_URL", "http://").startswith("https")
+        is_secure = os.environ.get("SECURE_COOKIES", "false").lower() == "true"
         response.set_cookie("access_token", access_token, httponly=True, secure=is_secure, samesite="lax", max_age=28800, path="/")
         return {"ok": True}
     except jwt.ExpiredSignatureError:
