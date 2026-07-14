@@ -2,15 +2,18 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 import { UserService, GymUser } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TableModule, TooltipModule, TagModule],
   template: `
     <div class="users-page">
-      <div class="page-header">
+      <div class="page-header-actions">
         <div>
           <h1 class="page-title">Empleados</h1>
           <p class="page-subtitle">{{ users().length }} usuario(s) en el sistema</p>
@@ -24,94 +27,125 @@ import { UserService, GymUser } from '../../core/services/user.service';
         <div class="error-banner"><i class="fas fa-circle-exclamation"></i> {{ error() }}</div>
       }
 
-      <!-- Users table -->
-      <div class="card" style="padding:0; overflow:hidden">
+      <!-- PrimeNG DataTable -->
+      <div class="table-card">
         @if (loading()) {
           <div class="table-loading">
             <span class="spinner"></span>
             <span>Cargando usuarios...</span>
           </div>
-        } @else if (users().length === 0) {
-          <div class="empty-state">
-            <i class="fas fa-users"></i>
-            <p>No hay usuarios en el sistema</p>
-          </div>
         } @else {
-          <table class="data-table">
-            <thead>
+          <p-table
+            [value]="users()"
+            [paginator]="users().length > 8"
+            [rows]="8"
+            [sortField]="'full_name'"
+            [sortOrder]="1"
+            dataKey="id"
+            styleClass="gym-table"
+            data-testid="users-primeng-table"
+          >
+            <ng-template pTemplate="header">
               <tr>
-                <th>Nombre</th>
-                <th>Email</th>
+                <th pSortableColumn="full_name">
+                  Nombre <p-sortIcon field="full_name"></p-sortIcon>
+                </th>
+                <th pSortableColumn="email">
+                  Email <p-sortIcon field="email"></p-sortIcon>
+                </th>
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
-            </thead>
-            <tbody>
-              @for (user of users(); track user.id) {
-                <tr [attr.data-testid]="'user-row-' + user.id">
-                  <td>
-                    <div class="user-cell">
-                      <div class="mini-avatar" [class.admin]="user.role === 'admin'">
-                        {{ userInitial(user) }}
-                      </div>
-                      <div>
-                        <div class="user-name" data-testid="user-full-name">{{ user.full_name }}</div>
-                      </div>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-user>
+              <tr [attr.data-testid]="'user-row-' + user.id">
+                <!-- Nombre -->
+                <td>
+                  <div class="user-cell">
+                    <div class="mini-avatar" [class.admin]="user.role === 'admin'">
+                      {{ userInitial(user) }}
                     </div>
-                  </td>
-                  <td class="muted">{{ user.email }}</td>
-                  <td>
-                    <span class="role-badge" [class.admin]="user.role === 'admin'">
-                      {{ user.role === 'admin' ? 'Admin' : 'Empleado' }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="active-badge" [class.active]="user.active" [class.inactive]="!user.active">
-                      {{ user.active ? 'Activo' : 'Inactivo' }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-btns">
-                      <button
-                        class="btn btn-ghost btn-sm"
-                        (click)="viewHistory(user)"
-                        data-testid="view-history-button"
-                        title="Ver historial"
-                      >
-                        <i class="fas fa-calendar-days"></i>
-                      </button>
-                      <button
-                        class="btn btn-ghost btn-sm"
-                        (click)="openEdit(user)"
-                        [attr.data-testid]="'edit-user-' + user.id"
-                        title="Editar"
-                      >
-                        <i class="fas fa-pen"></i>
-                      </button>
-                      <button
-                        class="btn btn-ghost btn-sm"
-                        (click)="openResetPassword(user)"
-                        [attr.data-testid]="'reset-pwd-' + user.id"
-                        title="Resetear contraseña"
-                      >
-                        <i class="fas fa-key"></i>
-                      </button>
-                      <button
-                        class="btn btn-ghost btn-sm"
-                        [class.danger]="user.active"
-                        (click)="toggleActive(user)"
-                        [attr.data-testid]="'toggle-active-' + user.id"
-                        [title]="user.active ? 'Desactivar' : 'Activar'"
-                      >
-                        <i [class]="user.active ? 'fas fa-ban' : 'fas fa-check'"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+                    <span class="user-name" data-testid="user-full-name">{{ user.full_name }}</span>
+                  </div>
+                </td>
+
+                <!-- Email -->
+                <td class="muted">{{ user.email }}</td>
+
+                <!-- Rol -->
+                <td>
+                  <span class="role-badge" [class.admin]="user.role === 'admin'">
+                    <i [class]="user.role === 'admin' ? 'fas fa-shield-halved' : 'fas fa-user'"></i>
+                    {{ user.role === 'admin' ? 'Admin' : 'Empleado' }}
+                  </span>
+                </td>
+
+                <!-- Estado -->
+                <td>
+                  <span class="active-badge" [class.active]="user.active" [class.inactive]="!user.active">
+                    <i [class]="user.active ? 'fas fa-circle-check' : 'fas fa-circle-xmark'"></i>
+                    {{ user.active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+
+                <!-- Acciones -->
+                <td>
+                  <div class="action-btns">
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      (click)="viewHistory(user)"
+                      data-testid="view-history-button"
+                      pTooltip="Ver historial"
+                      tooltipPosition="top"
+                    >
+                      <i class="fas fa-calendar-days"></i>
+                    </button>
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      (click)="openEdit(user)"
+                      [attr.data-testid]="'edit-user-' + user.id"
+                      pTooltip="Editar"
+                      tooltipPosition="top"
+                    >
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      (click)="openResetPassword(user)"
+                      [attr.data-testid]="'reset-pwd-' + user.id"
+                      pTooltip="Resetear contraseña"
+                      tooltipPosition="top"
+                    >
+                      <i class="fas fa-key"></i>
+                    </button>
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      [class.danger]="user.active"
+                      (click)="toggleActive(user)"
+                      [attr.data-testid]="'toggle-active-' + user.id"
+                      [pTooltip]="user.active ? 'Desactivar usuario' : 'Activar usuario'"
+                      tooltipPosition="top"
+                    >
+                      <i [class]="user.active ? 'fas fa-ban' : 'fas fa-check'"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>No hay usuarios en el sistema</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
         }
       </div>
     </div>
@@ -205,11 +239,66 @@ import { UserService, GymUser } from '../../core/services/user.service';
       font-size: 0.875rem;
     }
 
+    /* PrimeNG table wrapper */
+    .table-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    /* Override p-table for gym theme */
+    :host ::ng-deep .gym-table {
+      .p-datatable-header {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 20px;
+      }
+
+      .p-datatable-thead > tr > th {
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 16px;
+        border-top: none;
+      }
+
+      .p-datatable-tbody > tr > td {
+        background: transparent;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 16px;
+        font-size: 0.875rem;
+      }
+
+      .p-datatable-tbody > tr:last-child > td { border-bottom: none; }
+
+      .p-datatable-tbody > tr:hover > td { background: var(--bg-elevated); }
+
+      .p-paginator {
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border);
+        padding: 10px 16px;
+      }
+
+      .p-paginator-element {
+        color: var(--text-secondary);
+        border-radius: var(--radius);
+
+        &:hover:not(.p-disabled) { background: var(--bg-elevated); color: var(--text-primary); }
+        &.p-highlight { background: rgba(0,122,255,0.15); color: var(--accent-blue); }
+      }
+    }
+
     .table-loading {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 40px;
+      padding: 48px;
       color: var(--text-secondary);
       justify-content: center;
     }
@@ -240,7 +329,9 @@ import { UserService, GymUser } from '../../core/services/user.service';
     .muted { color: var(--text-secondary); font-size: 0.875rem; }
 
     .role-badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       padding: 3px 8px;
       border-radius: 4px;
       font-size: 0.7rem;
@@ -258,7 +349,9 @@ import { UserService, GymUser } from '../../core/services/user.service';
     }
 
     .active-badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       padding: 3px 8px;
       border-radius: 4px;
       font-size: 0.7rem;
@@ -288,6 +381,7 @@ import { UserService, GymUser } from '../../core/services/user.service';
       border-color: rgba(239,68,68,0.3);
     }
 
+    /* Modals */
     .modal-form { display: flex; flex-direction: column; gap: 16px; }
     .modal-title {
       font-family: var(--font-heading);

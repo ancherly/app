@@ -1,0 +1,72 @@
+// ===================================================================
+// DESIGN TOKENS — GymFichaje Dark Tactical Theme
+// Única fuente de verdad para colores, tipografía y espaciados
+// ===================================================================
+
+:root {
+  // --- Background surfaces ---
+  --bg-base:     #0A0A0A;
+  --bg-surface:  #121212;
+  --bg-elevated: #1A1A1A;
+
+  // --- Text ---
+  --text-primary:   #FFFFFF;
+  --text-secondary: #A1A1AA;
+  --text-muted:     #71717A;
+
+  // --- Brand & Actions ---
+  --accent-blue: #007AFF;
+  --accent-red:  #FF3B30;
+
+  // --- Borders ---
+  --border:        #27272A;
+  --border-strong: #3F3F46;
+
+  // --- Status Colors ---
+  --status-green:  #10B981;
+  --status-red:    #EF4444;
+  --status-yellow: #F59E0B;
+  --status-open:   #007AFF;
+
+  // --- Typography ---
+  --font-heading: 'Barlow Condensed', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  // --- Radius ---
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  // --- Shadows ---
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+
+  // --- Spacing scale ---
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  // ---------------------------------------------------------------
+  // PrimeNG theme overrides — adapta la librería a nuestro diseño
+  // ---------------------------------------------------------------
+  --primary-color:           var(--accent-blue);
+  --primary-color-text:      #FFFFFF;
+  --surface-ground:          var(--bg-base);
+  --surface-section:         var(--bg-surface);
+  --surface-card:            var(--bg-surface);
+  --surface-overlay:         var(--bg-elevated);
+  --surface-border:          var(--border);
+  --surface-hover:           rgba(255, 255, 255, 0.04);
+  --text-color:              var(--text-primary);
+  --text-color-secondary:    var(--text-secondary);
+  --border-radius:           var(--radius);
+  --highlight-bg:            rgba(0, 122, 255, 0.16);
+  --highlight-text-color:    #FFFFFF;
+  --focus-ring:              none;
+  --p-focus-ring-color:      var(--accent-blue);
+  --maskbg:                  rgba(0, 0, 0, 0.7);
+}
