@@ -158,7 +158,14 @@ Ver /app/memory/test_credentials.md
 
 ## Backlog (Fases 2-4)
 
-### P0 — Próxima sesión
+### P0 — Completado (Julio 2026 - Sesión 2)
+- [x] **Librería de componentes: PrimeNG 17.18.11** instalado y configurado
+- [x] **SCSS Architecture organizada**: _tokens.scss, _base.scss, _components.scss, _primeng-overrides.scss
+- [x] **Tabla de usuarios con PrimeNG p-table** (sorting por nombre/email, tooltips, paginación)
+- [x] **Acceso rápido en login**: botones demo para Admin y Empleado
+- [x] **Settings mejorado**: "Localización Madre" con link a Google Maps, badge EN USO
+
+### P1 — Próxima sesión (antes Supabase)
 - [ ] Conectar con Supabase (cuando el usuario esté listo)
 - [ ] Icono PWA dumbbell (mejorar SVG del brand icon)
 
