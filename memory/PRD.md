@@ -123,15 +123,10 @@ Web App (PWA instalable en móvil) para control horario de gimnasio con roles Ad
 - ✅ Supabase Auth (signInWithPassword)
 - ✅ RLS políticas completas
 - ✅ Edge Functions desplegadas (create-user, reset-user-password)
-- ✅ Backend FastAPI eliminado
-- ✅ SQL Master Setup + pg_cron script
+- ✅ Backend FastAPI eliminado (placeholder ASGI mínimo)
+- ✅ SQL Master Setup documentado (`000_master_setup.sql`)
 - ✅ Panel de Informes con Chart.js
-
-### P0 — Pendiente (acción del usuario)
-- [ ] Ejecutar `000_master_setup.sql` en Supabase SQL Editor
-- [ ] Crear auth users + vincular perfiles (Sección 9 del SQL)
-- [ ] Activar extensión pg_cron en Dashboard → Database → Extensions
-- [ ] Ejecutar `002_pgcron_setup.sql` después de activar pg_cron
+- ✅ pg_cron activo: `gymfichaje-midnight-close` → `59 22 * * *` → `close_open_punches()` (jobid: 1)
 
 ### P1 — Próximo
 - [ ] pg_cron para cierre automático medianoche
