@@ -1,0 +1,13 @@
+{
+  "globals": {
+    "ngDevMode": "readonly",
+    "AsyncIterator": "readonly"
+  },
+  "ignore": {
+    "patterns": [
+      "**/.angular/**",
+      "**/node_modules/**",
+      "**/dist/**"
+    ]
+  }
+}

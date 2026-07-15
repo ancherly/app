@@ -18,38 +18,44 @@ Los usuarios de autenticación deben crearse en **Authentication → Users** del
    - Email: `empleado@gimnasio.es` / Password: `Empleado123!`
 3. Anota los **UUID** de cada usuario creado.
 
-### Opción B — Crear el perfil en public.users con los UUIDs correctos
+### Opción B — Vincular perfiles en public.users con los UUIDs de Supabase Auth
 
-Después de crear los auth users, ejecuta el siguiente SQL en el **SQL Editor** (reemplaza los UUIDs reales):
+Después de crear los auth users, ejecuta el siguiente SQL en el **SQL Editor**.
+
+> ⚠️ **No uses UPDATE sobre el ID** (clave primaria). Usa DELETE + INSERT para reemplazar las filas antiguas:
 
 ```sql
--- Obtener los UUIDs de los usuarios en auth.users
+-- 1. Verificar que los auth users existen
 SELECT id, email FROM auth.users WHERE email IN ('admin@gimnasio.es', 'empleado@gimnasio.es');
-```
 
-Luego, si ya tienes filas en `public.users` con esos emails (del agente anterior), actualiza sus IDs para que coincidan con los de Supabase Auth:
+-- 2. Eliminar perfiles viejos (con UUIDs incorrectos del sistema anterior)
+DELETE FROM public.users WHERE email IN ('admin@gimnasio.es', 'empleado@gimnasio.es');
 
-```sql
--- Actualizar IDs para que coincidan con Supabase Auth
-UPDATE public.users
-SET id = (SELECT id FROM auth.users WHERE email = 'admin@gimnasio.es')
-WHERE email = 'admin@gimnasio.es';
-
-UPDATE public.users
-SET id = (SELECT id FROM auth.users WHERE email = 'empleado@gimnasio.es')
-WHERE email = 'empleado@gimnasio.es';
-```
-
-Si NO tienes filas previas en `public.users`, insértalas con los UUIDs correctos:
-
-```sql
+-- 3. Re-insertar con los UUIDs correctos de Supabase Auth
 INSERT INTO public.users (id, email, full_name, role, active, password_hash)
-VALUES
-  ((SELECT id FROM auth.users WHERE email = 'admin@gimnasio.es'),
-   'admin@gimnasio.es', 'Administrador', 'admin', true, 'managed_by_supabase_auth'),
-  ((SELECT id FROM auth.users WHERE email = 'empleado@gimnasio.es'),
-   'empleado@gimnasio.es', 'María García', 'employee', true, 'managed_by_supabase_auth');
+SELECT
+  a.id,
+  a.email,
+  CASE a.email
+    WHEN 'admin@gimnasio.es'    THEN 'Administrador'
+    WHEN 'empleado@gimnasio.es' THEN 'María García'
+    ELSE a.email
+  END AS full_name,
+  CASE a.email
+    WHEN 'admin@gimnasio.es' THEN 'admin'
+    ELSE 'employee'
+  END AS role,
+  true AS active,
+  'managed_by_supabase_auth' AS password_hash
+FROM auth.users a
+WHERE a.email IN ('admin@gimnasio.es', 'empleado@gimnasio.es');
+
+-- 4. Verificar el resultado
+SELECT id, email, full_name, role, active FROM public.users;
 ```
+
+**Por qué no funciona el UPDATE anterior:**
+El `id` es la clave primaria. No se puede cambiar directamente a otro valor. En su lugar, eliminamos la fila antigua y la recreamos con el UUID correcto de Supabase Auth.
 
 ---
 
