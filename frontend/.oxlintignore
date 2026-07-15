@@ -1,5 +1,6 @@
+**/.angular/**
 .angular/
-**/.angular/
+**/vite/deps/**
 node_modules/
 **/node_modules/
 dist/

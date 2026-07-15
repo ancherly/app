@@ -1,12 +1,18 @@
 {
   "globals": {
     "ngDevMode": "readonly",
-    "AsyncIterator": "readonly"
+    "AsyncIterator": "readonly",
+    "ngI18nClosureMode": "readonly",
+    "ngJitMode": "readonly"
   },
   "ignore": {
     "patterns": [
       "**/.angular/**",
+      ".angular/**",
+      "frontend/.angular/**",
+      "**/vite/deps/**",
       "**/node_modules/**",
+      "node_modules/**",
       "**/dist/**"
     ]
   }

@@ -1,7 +1,8 @@
+**/.angular/**
 .angular/
-**/.angular/
+frontend/.angular/
+**/vite/deps/**
 node_modules/
 **/node_modules/
 dist/
 **/dist/
-frontend/.angular/

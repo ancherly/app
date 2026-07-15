@@ -156,3 +156,6 @@ Web App (PWA instalable en móvil) para control horario de gimnasio con roles Ad
 - Edge Functions creadas (pendiente deploy)
 - Geofencing movido a client-side
 - Backend FastAPI marcado para eliminación
+- SQL Master Setup creado: `/app/supabase/migrations/000_master_setup.sql` (secciones 0-9)
+- Panel de Informes (`/admin/reports`) con Chart.js: 4 cards + bar chart por empleado + line chart diario + tabla resumen
+- Sidebar admin actualizado: Empleados / Informes / Configuración
