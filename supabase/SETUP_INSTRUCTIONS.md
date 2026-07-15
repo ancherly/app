@@ -1,8 +1,15 @@
 # Instrucciones de Configuración — Supabase
 
-## 1. Ejecutar el script RLS
+## 1. Ejecutar el script SQL maestro (desde cero)
 
-Ve a tu proyecto Supabase → **SQL Editor** → **New Query** y pega el contenido de `migrations/001_rls_setup.sql`. Ejecuta todo.
+Ve a tu proyecto Supabase → **SQL Editor** → **New Query** y pega el contenido de **`migrations/000_master_setup.sql`**. Este script hace todo:
+- Crea las 3 tablas (`users`, `punches`, `gym_settings`)
+- Habilita RLS en todas
+- Crea la función `is_admin()`
+- Aplica todas las políticas de acceso
+- Crea la función `close_open_punches()` para el cierre nocturno
+
+> **Nota:** El archivo `migrations/001_rls_setup.sql` es un script parcial anterior (solo RLS). Para instalaciones nuevas, usa siempre el `000_master_setup.sql`.
 
 ---
 

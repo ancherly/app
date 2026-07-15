@@ -38,6 +38,10 @@ import { signal } from '@angular/core';
               <i class="fas fa-users"></i>
               <span>Empleados</span>
             </a>
+            <a routerLink="/admin/reports" routerLinkActive="active" class="nav-item" (click)="menuOpen.set(false)" data-testid="nav-reports">
+              <i class="fas fa-chart-bar"></i>
+              <span>Informes</span>
+            </a>
             <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item" (click)="menuOpen.set(false)" data-testid="nav-settings">
               <i class="fas fa-gear"></i>
               <span>Configuración</span>

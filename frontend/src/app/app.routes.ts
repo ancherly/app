@@ -41,6 +41,10 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () => import('./features/admin/settings.component').then(m => m.AdminSettingsComponent)
       },
+      {
+        path: 'reports',
+        loadComponent: () => import('./features/admin/reports.component').then(m => m.AdminReportsComponent)
+      },
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   },
