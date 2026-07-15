@@ -118,11 +118,20 @@ Web App (PWA instalable en móvil) para control horario de gimnasio con roles Ad
 
 ## Backlog
 
-### P0 — En progreso
-- [ ] Ejecutar SQL de RLS en Supabase Dashboard (usuario pendiente)
-- [ ] Crear auth users demo en Supabase (admin@gimnasio.es, empleado@gimnasio.es)
-- [ ] Desplegar Edge Functions (supabase functions deploy)
-- [ ] Eliminar backend FastAPI + actualizar supervisord
+### P0 — Completado ✅
+- ✅ Migración servicios Angular → @supabase/supabase-js
+- ✅ Supabase Auth (signInWithPassword)
+- ✅ RLS políticas completas
+- ✅ Edge Functions desplegadas (create-user, reset-user-password)
+- ✅ Backend FastAPI eliminado
+- ✅ SQL Master Setup + pg_cron script
+- ✅ Panel de Informes con Chart.js
+
+### P0 — Pendiente (acción del usuario)
+- [ ] Ejecutar `000_master_setup.sql` en Supabase SQL Editor
+- [ ] Crear auth users + vincular perfiles (Sección 9 del SQL)
+- [ ] Activar extensión pg_cron en Dashboard → Database → Extensions
+- [ ] Ejecutar `002_pgcron_setup.sql` después de activar pg_cron
 
 ### P1 — Próximo
 - [ ] pg_cron para cierre automático medianoche
@@ -148,14 +157,13 @@ Web App (PWA instalable en móvil) para control horario de gimnasio con roles Ad
 - Demo users en login
 - Configuración Mother Location mejorada
 
-### Julio 2026 — Sesión 3 (actual)
-- Migración DB: MongoDB → Supabase PostgreSQL
-- Reescritura servicios Angular: HttpClient → @supabase/supabase-js
-- Implementación Supabase Auth (signInWithPassword)
-- RLS SQL script listo
-- Edge Functions creadas (pendiente deploy)
-- Geofencing movido a client-side
-- Backend FastAPI marcado para eliminación
-- SQL Master Setup creado: `/app/supabase/migrations/000_master_setup.sql` (secciones 0-9)
-- Panel de Informes (`/admin/reports`) con Chart.js: 4 cards + bar chart por empleado + line chart diario + tabla resumen
-- Sidebar admin actualizado: Empleados / Informes / Configuración
+### Julio 2026 — Sesión 4 (actual)
+- Backend FastAPI eliminado: `server.py` reemplazado con placeholder ASGI mínimo (supervisord conf es readonly)
+  - Archivos antiguos archivados en `/app/backend/archive/`
+  - `supervisorctl status backend` → RUNNING (placeholder, sin funcionalidad)
+- Edge Functions desplegadas a Supabase (CLI v2.109.1):
+  - `create-user` → activa en `urmdglvrqnhzlhtprfuc`
+  - `reset-user-password` → activa en `urmdglvrqnhzlhtprfuc`
+- Script pg_cron creado: `/app/supabase/migrations/002_pgcron_setup.sql`
+  - Cierre automático a las 22:59 UTC (23:59 España invierno)
+  - Requiere activar extensión pg_cron en Supabase Dashboard → Database → Extensions
